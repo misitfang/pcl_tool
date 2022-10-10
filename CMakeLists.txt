@@ -26,6 +26,10 @@ target_link_libraries(template_alignment ${PCL_LIBRARIES})
 add_executable(resampling resampling.cpp)
 target_link_libraries(resampling ${PCL_LIBRARIES})
 
-add_executable(txt_to_pcd txt_to_pcd)
-target_link_libraries(txt_to_pcd ${PCL_LIBRARIES})
+
+add_executable(pcd_to_txt pcd_to_txt.cpp)
+target_link_libraries(pcd_to_txt ${PCL_LIBRARIES})
+
+add_executable(trajectory_cloud_extract trajectory_cloud_extract.cpp)
+target_link_libraries(trajectory_cloud_extract ${PCL_LIBRARIES})
 
