@@ -1,1 +1,0 @@
-../data/trans_poincloud_mech_model.pcd
