@@ -83,33 +83,35 @@ int main()
 	PointCloudT::Ptr cloud_source_new(new PointCloudT());
 	PointCloudT::Ptr cloud_target_new(new PointCloudT());
 
-	std::vector<int> k_indices;
+	pcl::Indices k_indices(1);
 	std::vector<float> k_sqr_distances;
 	float sqr_distances_th = std::numeric_limits<float>::max();
+	sqr_distances_th =0.1;
 	float error_distance = std::numeric_limits<float>::infinity();
 	LOG(INFO) << "sqr_distances_th :" << sqr_distances_th;
 	LOG(INFO) << "error_distance :" << error_distance;
 	Eigen::Matrix4f transformation_matrix = Eigen::Matrix4f::Identity();
 	Eigen::Matrix4f cur_transformation_matrix = Eigen::Matrix4f::Identity();
 	// load point cloud data
-	pcl::io::loadPCDFile("../data/icp_process/eletre.pcd", *cloud_source_in);
-	pcl::io::loadPCDFile("../data/icp_process/chargePortCLoud.pcd", *cloud_target);
-	LOG(INFO) << "cloud_source size :" << cloud_source->size() << std::endl;
+	pcl::io::loadPCDFile("../data/pcd/icp_process/162755.pcd", *cloud_source_in);
+	pcl::io::loadPCDFile("../data/pcd/icp_process/162755_trans.pcd", *cloud_target);
+	LOG(INFO) << "cloud_source_in size :" << cloud_source_in->size() << std::endl;
 	LOG(INFO) << "cloud_target size :" << cloud_target->size() << std::endl;
 	std::vector<Eigen::Vector3f, Eigen::aligned_allocator<Eigen::Vector3f>> v_source, v_target;
 
 	pcl::search::KdTree<PointT>::Ptr tree(new pcl::search::KdTree<PointT>());
-	transformation_matrix << 0.0751278, 0.994965, 0.0663915, -0.00477442,
-		-0.996773, 0.0768222, -0.0233454, -0.0416481,
-		-0.0283282, -0.0644234, 0.997524, 0.369829,
-		0, 0, 0, 1;
+// 	transformation_matrix <<0.982161  ,  0.174716  ,-0.0695687 ,  0.0494402,
+//   -0.180878 ,   0.978886,  -0.0952259, -0.00924198,
+//   0.0514619 ,    0.10611  ,  0.993024 ,   -0.12433,
+//           0   ,        0      ,     0    ,       1;
+
 	// transformation_matrix << 0, 1, 0, 0,
 	// 	-1, 0, 0, 0,
 	// 	0, 0, 1, 0,
 	// 	0, 0, 0, 1;
 
 	tree->setInputCloud(cloud_target);
-	for (int iter = 0; iter < 100; iter++)
+	for (int iter = 0; iter < 5; iter++)
 	{
 
 		// Rp+t  转换source点云
@@ -135,6 +137,8 @@ int main()
 				cloud_target_new->points.push_back(cloud_target->points[k_indices[0]]);
 				sum_sqr_dis += k_sqr_distances[0];
 				count++;
+				// LOG(INFO) << "k_sqr_distances[0] :" << k_sqr_distances[0] << std::endl;
+				// LOG(INFO) << "k_indices[0] :" << k_indices[0] << std::endl;
 			}
 		}
 		LOG(INFO) << "count:" << count << std::endl;

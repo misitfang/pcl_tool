@@ -163,8 +163,8 @@ int main(int argc, char **argv)
     PointCloudT::Ptr cloud_target(new PointCloudT());
     Eigen::Matrix3d R = Eigen::Matrix3d::Identity();
     Eigen::Vector3d t(0.0, 0.0, 0.0);
-    pcl::io::loadPCDFile("../data/icp_process/eletre.pcd", *cloud_source);
-    pcl::io::loadPCDFile("../data/icp_process/chargePortCLoud.pcd", *cloud_target);
+    pcl::io::loadPCDFile("../data/pcd/icp_process/162755.pcd", *cloud_source);
+    pcl::io::loadPCDFile("../data/pcd/icp_process/162755_trans.pcd", *cloud_target);
     icp_test(cloud_source, cloud_target, 50, 1.0e-10, 1.0e-10, R, t);
     std::cout << "R: \n"
               << R << std::endl;
@@ -277,7 +277,7 @@ int main(int argc, char **argv)
     icp.setInputSource(cloud_source);
     icp.setInputTarget(cloud_target);
     icp.setTransformationEpsilon(1e-10);    // 为终止条件设置最小转换差异
-    icp.setMaxCorrespondenceDistance(0.2); // 设置对应点对之间的最大距离（大于该距离的点不考虑 m。
+    // icp.setMaxCorrespondenceDistance(0.2); // 设置对应点对之间的最大距离（大于该距离的点不考虑 m。
     icp.setEuclideanFitnessEpsilon(0.001);  // 设置收敛条件是均方误差和小于阈值， 停止迭代；
     icp.setMaximumIterations(35);           // 最大迭代次数
 
@@ -285,7 +285,7 @@ int main(int argc, char **argv)
     PointCloudT::Ptr cloud_icp_2(new PointCloudT());
 
     std::cout << "start align with trans_init" << std::endl;
-    icp.align(*cloud_icp,T);
+    icp.align(*cloud_icp);
     std::cout << "icp.getFinalTransformation())------------ :\n"
               << icp.getFinalTransformation() << std::endl;
 
