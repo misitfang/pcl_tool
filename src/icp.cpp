@@ -78,12 +78,8 @@ void GetCentroid(Vector3fVector &v_source, Vector3fVector &v_target,
 {
 	for (size_t i = 0; i < v_source.size(); i++)
 	{
-		centroid_source[0] += v_source[i][0];
-		centroid_source[1] += v_source[i][1];
-		centroid_source[2] += v_source[i][2];
-		centroid_target[0] += v_target[i][0];
-		centroid_target[1] += v_target[i][1];
-		centroid_target[2] += v_target[i][2];
+		centroid_source += v_source[i];
+		centroid_target += v_target[i];
 	}
 	centroid_source /= v_source.size();
 	centroid_target /= v_target.size();
@@ -104,6 +100,7 @@ void GetCentroid(Vector3fVector &v_source, Vector3fVector &v_target,
 		de_centroid_target[1] = (v_target[i][1] - centroid_target[1]);
 		de_centroid_target[2] = (v_target[i][2] - centroid_target[2]);
 		W += de_centroid_source * de_centroid_target.transpose();
+
 	}
 	LOG(INFO) << "W:\n"
 			  << W << std::endl;
@@ -122,13 +119,11 @@ void GetCentroid(Vector3fVector &vect_in,
 	for (size_t i = 0; i < vect_in.size(); i++)
 	{
 		// Check if the point is invalid
-		if (pcl::isFinite(*cloud_iterator))
-		{
-			accumulator[0] += vect_in[i][0];
-			accumulator[1] += vect_in[i][1];
-			accumulator[2] += vect_in[i][2];
-			++cp;
-		}
+
+		accumulator[0] += vect_in[i][0];
+		accumulator[1] += vect_in[i][1];
+		accumulator[2] += vect_in[i][2];
+		++cp;
 	}
 
 	if (cp > 0)
@@ -141,7 +136,7 @@ void GetCentroid(Vector3fVector &vect_in,
 	// 计算与质心差值对均值
 	std::size_t npts = vect_in.size();
 
-	deam_mattix_out = Eigen::Matrix<Scalar, 4, Eigen::Dynamic>::Zero(4, npts); // keep the data aligned
+	deam_mattix_out = Eigen::Matrix<float, 4, Eigen::Dynamic>::Zero(4, npts); // keep the data aligned
 
 	for (std::size_t i = 0; i < npts; ++i)
 	{
@@ -236,13 +231,13 @@ int main()
 		}
 
 		// 保存提取的点对用作显示
-		//  cloud_source_new->height = 1;
-		//  cloud_source_new->width =cloud_source_new->points.size() ;
-		//  pcl::io::savePCDFile("./cloud_source_new.pcd", *cloud_source_new);
-		//  cloud_target_new->height = 1;
-		//  cloud_target_new->width =cloud_target_new->points.size() ;
-		//  pcl::io::savePCDFile("./cloud_source_new.pcd", *cloud_source_new);
-		//  pcl::io::savePCDFile("./cloud_target_new.pcd", *cloud_target_new);
+		// cloud_source_new->height = 1;
+		// cloud_source_new->width = cloud_source_new->points.size();
+		// pcl::io::savePCDFile("./cloud_source_new.pcd", *cloud_source_new);
+		// cloud_target_new->height = 1;
+		// cloud_target_new->width = cloud_target_new->points.size();
+		// pcl::io::savePCDFile("./cloud_source_new.pcd", *cloud_source_new);
+		// pcl::io::savePCDFile("./cloud_target_new.pcd", *cloud_target_new);
 		LOG(INFO) << "count:" << count << std::endl;
 		// 对应点之间平方和距离平均值
 		error_distance = (sum_sqr_dis) / count;
@@ -263,17 +258,22 @@ int main()
 		W.setZero();
 		GetCentroid(v_source, v_target, centroid_source, centroid_target, W);
 
-		Eigen::Matrix<float, 4, 1> centroid_source_mat;
-		Eigen::Matrix<float, 4, 1> centroid_target_mat;
-		Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> deam_matrix_out;
-		Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> deam_matrix_out;
-			GetCentroid(v_source, cloud_target_new, centroid_source, centroid_target, W);
+		// Eigen::Matrix<float, 4, 1> centroid_source_mat;
+		// Eigen::Matrix<float, 4, 1> centroid_target_mat;
+		// Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> deam_matrix_out;
+		// Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> deam_matrix_out;
+		// 	GetCentroid(v_source, cloud_target_new, centroid_source, centroid_target, W);
 		// w=P’q'^T
-		Eigen::Matrix<Scalar, 3, 3> H = (cloud_src_demean * cloud_tgt_demean.transpose()).topLeftCorner(3, 3);
+		// Eigen::Matrix<float, 3, 3> H = (cloud_src_demean * cloud_tgt_demean.transpose()).topLeftCorner(3, 3);
 		Eigen::JacobiSVD<Eigen::Matrix3f> svd(W, Eigen::ComputeFullU | Eigen::ComputeFullV);
 		// svd 求解  R=VU^T   t=q^-Rp^
 		Eigen::Matrix3f V = svd.matrixV();
 		Eigen::Matrix3f U = svd.matrixU();
+		if (U.determinant() * V.determinant() < 0)
+		{
+			for (int x = 0; x < 3; ++x)
+				V(x, 2) *= -1;
+		}
 		Eigen::Matrix3f R = V * U.transpose();
 		LOG(INFO) << "R:\n"
 				  << R << std::endl;
