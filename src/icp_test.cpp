@@ -153,9 +153,31 @@ void icp_test(const PointCloudT::Ptr &points_model,
 
     delete kd_tree;
 }
-
-int main(int argc, char **argv)
+void GolgInit(std::string &log_info_path)
 {
+	std::string log_info;
+	DIR *dir;
+	std::string str_command;
+	if ((dir = opendir(log_info_path.c_str())) == NULL)
+	{
+		LOG(INFO) << "日志存放目录不存在，创建日志存放目录文件" << std::endl;
+		str_command = "mkdir -p " + log_info_path;
+		system(str_command.c_str()); // 存在就删除目录
+	}
+
+	log_info = log_info_path + "ICP_";
+	FLAGS_alsologtostderr = true;
+	FLAGS_colorlogtostderr = true;
+	google::SetLogDestination(google::GLOG_INFO, log_info.c_str());
+	google::SetLogFilenameExtension(".log");
+
+	LOG(INFO) << "google::IsGoogleLoggingInitialized :" << google::IsGoogleLoggingInitialized() << std::endl;
+	google::InitGoogleLogging("init logs------");
+}
+int main(int argc, char **argv)
+{    
+     std::string log_info_path = "../data/logs/ICP_CPP/";
+	      GolgInit(log_info_path);
 
     PointCloudT::Ptr cloud_source(new PointCloudT());
     PointCloudT::Ptr cloud_source_in_x(new PointCloudT());
@@ -165,11 +187,11 @@ int main(int argc, char **argv)
     Eigen::Vector3d t(0.0, 0.0, 0.0);
     pcl::io::loadPCDFile("../data/pcd/icp_process/162755.pcd", *cloud_source);
     pcl::io::loadPCDFile("../data/pcd/icp_process/162755_trans.pcd", *cloud_target);
-    icp_test(cloud_source, cloud_target, 50, 1.0e-10, 1.0e-10, R, t);
-    std::cout << "R: \n"
-              << R << std::endl;
-    std::cout << "t: \n"
-              << t << std::endl;
+    // icp_test(cloud_source, cloud_target, 50, 1.0e-10, 1.0e-10, R, t);
+    // std::cout << "R: \n"
+    //           << R << std::endl;
+    // std::cout << "t: \n"
+    //           << t << std::endl;
 
     PointT point;
     // pcl::io::loadPCDFile("/home/ahpc/myspace/pcl_tool/pcl_tool/models/pcl_G9_model.pcd", *cloud_source);
@@ -215,10 +237,10 @@ int main(int argc, char **argv)
     //         }
     // pcl::io::savePCDFile("./filter_zeek_ty.pcd",*cloud_source_in_x);
     // STLXUANZHUAN
-    T << 0, 1, 0.0, -0.00398653,
-        -1, 0.00, 0.0, -0.0391091,
-        0.0, 0.00, 1, 0.359212,
-        0, 0, 0, 1;
+    T << 0.982161, 0.174716, -0.0695687, 0.0494402,
+		-0.180878, 0.978886, -0.0952259, -0.00924198,
+		0.0514619, 0.10611, 0.993024, -0.1433,
+		0, 0, 0, 1;
     // pcl::transformPointCloud(*cloud_source, *cloud_source, T);
 
     Eigen::Matrix4f T1;
@@ -275,18 +297,21 @@ int main(int argc, char **argv)
     pcl::IterativeClosestPoint<PointT, PointT> icp, icp_secondary;
 
     icp.setInputSource(cloud_source);
+    LOG(INFO)<<"setInputSource"<<std::endl;
     icp.setInputTarget(cloud_target);
+    LOG(INFO)<<"setInputTarget"<<std::endl;
+
     icp.setTransformationEpsilon(1e-10);    // 为终止条件设置最小转换差异
-    // icp.setMaxCorrespondenceDistance(0.2); // 设置对应点对之间的最大距离（大于该距离的点不考虑 m。
+    icp.setMaxCorrespondenceDistance(0.2); // 设置对应点对之间的最大距离（大于该距离的点不考虑 m。
     icp.setEuclideanFitnessEpsilon(0.001);  // 设置收敛条件是均方误差和小于阈值， 停止迭代；
     icp.setMaximumIterations(35);           // 最大迭代次数
 
     PointCloudT::Ptr cloud_icp(new PointCloudT());
     PointCloudT::Ptr cloud_icp_2(new PointCloudT());
 
-    std::cout << "start align with trans_init" << std::endl;
-    icp.align(*cloud_icp);
-    std::cout << "icp.getFinalTransformation())------------ :\n"
+    LOG(INFO) << "start align with trans_init" << std::endl;
+    icp.align(*cloud_icp,T);
+    LOG(INFO) << "icp.getFinalTransformation())------------ :\n"
               << icp.getFinalTransformation() << std::endl;
 
     icp_secondary.setInputSource(cloud_source);

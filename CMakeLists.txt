@@ -5,7 +5,7 @@ project(normal_est)
 set(CMAKE_CXX_FLAGS_DEBUG "{CMAKE_CXX_FLAGS} -o0 -ggbd")    #添加语句
 add_compile_options(-g)                                     #添加语句
 SET(CMAKE_BUILD_TYPE “DEBUG”)
-
+find_package (glog REQUIRED)
 find_package(PCL 1.7)
 include_directories("/usr/include/eigen3")
 include_directories(${PCL_INCLUDE_DIRS})
@@ -34,11 +34,11 @@ link_directories(/home/ahpc/workspace/yolov5s_ncnn_0117/yolov5s_ncnn/3rd/lib/)
 # add_executable(eigen_test eigen_test.cpp)
 # target_link_libraries(eigen_test ${PCL_LIBRARIES})
 
-add_executable(area_pick src/area_pick.cpp)
-target_link_libraries(area_pick ${PCL_LIBRARIES})
+# add_executable(area_pick src/area_pick.cpp)
+# target_link_libraries(area_pick ${PCL_LIBRARIES})
 
-add_executable(normal_estimation src/normal_estimation.cpp)
-target_link_libraries(normal_estimation ${PCL_LIBRARIES})
+# add_executable(normal_estimation src/normal_estimation.cpp)
+# target_link_libraries(normal_estimation ${PCL_LIBRARIES})
 
 # include_directories(so_test.h)
 # add_library(so_test SHARED so_test.cpp)
@@ -48,40 +48,40 @@ target_link_libraries(normal_estimation ${PCL_LIBRARIES})
 
 # target_link_libraries(so_test_main "/home/ahpc/workspace/yolov5s_ncnn_0117/yolov5s_ncnn/3rd/lib/libncnn.so")
 
-add_executable(xyz_to_pcd src/xyz_to_pcd.cpp)
-target_link_libraries(xyz_to_pcd ${PCL_LIBRARIES})
+# add_executable(xyz_to_pcd src/xyz_to_pcd.cpp)
+# target_link_libraries(xyz_to_pcd ${PCL_LIBRARIES})
 
-add_executable(ply_to_pcd src/ply_to_pcd.cpp)
-target_link_libraries(ply_to_pcd ${PCL_LIBRARIES})
+# add_executable(ply_to_pcd src/ply_to_pcd.cpp)
+# target_link_libraries(ply_to_pcd ${PCL_LIBRARIES})
 
 
-add_executable(ransac_registration src/ransac_registration.cpp)
-target_link_libraries(ransac_registration ${PCL_LIBRARIES})
+# add_executable(ransac_registration src/ransac_registration.cpp)
+# target_link_libraries(ransac_registration ${PCL_LIBRARIES})
 
 add_executable(icp_test src/icp_test.cpp)
-target_link_libraries(icp_test ${PCL_LIBRARIES})
+target_link_libraries(icp_test ${PCL_LIBRARIES} glog)
 
-add_executable(icp_p_plane src/icp_p_plane.cpp)
-target_link_libraries(icp_p_plane ${PCL_LIBRARIES})
+# add_executable(icp_p_plane src/icp_p_plane.cpp)
+# target_link_libraries(icp_p_plane ${PCL_LIBRARIES})
 
-add_executable(corss src/corss.cpp)
-target_link_libraries(corss ${PCL_LIBRARIES})
+# add_executable(corss src/corss.cpp)
+# target_link_libraries(corss ${PCL_LIBRARIES})
 
-add_executable(alignment_prerejective src/alignment_prerejective.cpp)
-target_link_libraries(alignment_prerejective ${PCL_LIBRARIES})
+# add_executable(alignment_prerejective src/alignment_prerejective.cpp)
+# target_link_libraries(alignment_prerejective ${PCL_LIBRARIES})
 
 
-add_executable(region_growing_segmentation src/region_growing_segmentation.cpp)
-target_link_libraries(region_growing_segmentation ${PCL_LIBRARIES})
+# add_executable(region_growing_segmentation src/region_growing_segmentation.cpp)
+# target_link_libraries(region_growing_segmentation ${PCL_LIBRARIES})
 
-add_executable(euclidean_seg src/euclidean_seg.cpp)
-target_link_libraries(euclidean_seg ${PCL_LIBRARIES})
+# add_executable(euclidean_seg src/euclidean_seg.cpp)
+# target_link_libraries(euclidean_seg ${PCL_LIBRARIES})
 
-add_executable(model_trans src/model_trans.cpp)
-target_link_libraries(model_trans ${PCL_LIBRARIES})
+# add_executable(model_trans src/model_trans.cpp)
+# target_link_libraries(model_trans ${PCL_LIBRARIES})
 
-add_executable(icp_process src/icp_process.cpp)
-target_link_libraries(icp_process ${PCL_LIBRARIES})
+# add_executable(icp_process src/icp_process.cpp)
+# target_link_libraries(icp_process ${PCL_LIBRARIES})
 
 
 find_package (glog REQUIRED)

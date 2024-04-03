@@ -241,6 +241,8 @@ int main()
 		// Apply guessed transformation prior to search for neighbours
 		// 将输入点云通过guess变换到目标点云附近
 		TransFromCloud(*cloud_source_in, *cloud_source, guess);
+		transformation_matrix = guess;
+		LOG(INFO) << "guess transformation_matrix :" << transformation_matrix << std::endl;
 	}
 	else
 		*cloud_source = *cloud_source_in;
@@ -252,10 +254,7 @@ int main()
 		// Rp+t  转换source点云
 		// pcl::transformPointCloud(*cloud_source_in, *cloud_source, transformation_matrix);
 		//
-		LOG(INFO) << "开始循环迭代 ";
-
-		LOG(INFO) << "2455 ";
-
+		LOG(INFO) << "开始第 "<<iter<<" 次循环迭代 ";
 		tree_reverse->setInputCloud(cloud_source);
 		v_source.clear();
 		v_target.clear();
