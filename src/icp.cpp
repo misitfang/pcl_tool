@@ -195,7 +195,7 @@ int main()
 	Eigen::Matrix4f cur_transformation_matrix = Eigen::Matrix4f::Identity();
 	// load point cloud data
 	pcl::io::loadPCDFile("../data/pcd/icp_process/162755.pcd", *cloud_source_in);
-	pcl::io::loadPCDFile("../data/pcd/icp_process/162807.pcd", *cloud_target);
+	pcl::io::loadPCDFile("../data/pcd/icp_process/162755_trans.pcd", *cloud_target);
 	LOG(INFO) << "cloud_source_in size :" << cloud_source_in->size() << std::endl;
 	LOG(INFO) << "cloud_target size :" << cloud_target->size() << std::endl;
 	Vector3fVector v_source, v_target;
