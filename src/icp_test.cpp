@@ -186,7 +186,7 @@ int main(int argc, char **argv)
     Eigen::Matrix3d R = Eigen::Matrix3d::Identity();
     Eigen::Vector3d t(0.0, 0.0, 0.0);
     pcl::io::loadPCDFile("../data/pcd/icp_process/162755.pcd", *cloud_source);
-    pcl::io::loadPCDFile("../data/pcd/icp_process/162707.pcd", *cloud_target);
+    pcl::io::loadPCDFile("../data/pcd/icp_process/162807.pcd", *cloud_target);
     // icp_test(cloud_source, cloud_target, 50, 1.0e-10, 1.0e-10, R, t);
     // std::cout << "R: \n"
     //           << R << std::endl;

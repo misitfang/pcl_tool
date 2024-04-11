@@ -191,16 +191,16 @@ int main()
     Eigen::Matrix4f cur_transformation_matrix = Eigen::Matrix4f::Identity();
     // load point cloud data
     pcl::io::loadPCDFile("../data/pcd/icp_process/162755.pcd", *cloud_source_in);
-    pcl::io::loadPCDFile("../data/pcd/icp_process/162755_trans.pcd", *cloud_target);
+    pcl::io::loadPCDFile("../data/pcd/icp_process/162807.pcd", *cloud_target);
     LOG(INFO) << "cloud_source_in size :" << cloud_source_in->size() << std::endl;
     LOG(INFO) << "cloud_target size :" << cloud_target->size() << std::endl;
     Vector3fVector v_source, v_target;
     pcl::search::KdTree<PointT>::Ptr tree(new pcl::search::KdTree<PointT>());
     pcl::search::KdTree<PointT>::Ptr tree_reverse(new pcl::search::KdTree<PointT>());
-    guess << 0.982161, 0.174716, -0.0695687, 0.0494402,
-        -0.180878, 0.978886, -0.0952259, -0.00924198,
-        0.0514619, 0.10611, 0.993024, -0.1433,
-        0, 0, 0, 1;
+    // guess << 0.982161, 0.174716, -0.0695687, 0.0494402,
+    //     -0.180878, 0.978886, -0.0952259, -0.00924198,
+    //     0.0514619, 0.10611, 0.993024, -0.1433,
+    //     0, 0, 0, 1;
 
     // transformation_matrix << 0, 1, 0, 0,
     // 	-1, 0, 0, 0,
@@ -259,25 +259,32 @@ int main()
             tree->nearestKSearch(input_transformed->points[i], 1, k_indices, k_sqr_distances);
             // 最近点距离小于阈值
             if (k_sqr_distances[0] < max_dist_sqr) {
-                v_source.push_back(Eigen::Vector3f(input_transformed->points[i].x, input_transformed->points[i].y, input_transformed->points[i].z));
-                // v_target.push_back(Eigen::Vector3f(cloud_target->points[k_indices[0]].x, cloud_target->points[0].y, cloud_target->points[0].z));
-                v_target.push_back(Eigen::Vector3f(cloud_target->points[k_indices[0]].x, cloud_target->points[k_indices[0]].y, cloud_target->points[k_indices[0]].z));
 
-                // LOG(INFO) << "k_sqr_distances[0] :" << k_sqr_distances[0] << std::endl;
-                // LOG(INFO) << "k_indices[0] :" << k_indices[0] << std::endl;
-                // tree_reverse->nearestKSearch(cloud_target->points[k_indices[0]], 1, k_indices_reverse, k_sqr_distances_reverse);
-                // if (k_indices_reverse[0] == i)
-                // {
-                // 	// LOG(INFO) << "k_indices_reverse[0] :" << k_indices_reverse[0] << std::endl
-                // 	// 		  << "i :" << i << "互为最近点";
-                // 	v_source.push_back(Eigen::Vector3f(input_transformed->points[i].x, input_transformed->points[i].y, input_transformed->points[i].z));
-                // 	v_target.push_back(Eigen::Vector3f(cloud_target->points[k_indices[0]].x, cloud_target->points[0].y, cloud_target->points[0].z));
-                cloud_source_new->points.push_back(input_transformed->points[i]);
-                cloud_target_new->points.push_back(cloud_target->points[k_indices[0]]);
+                // 互为邻近点
+                bool kdtree_reverse = false;
+                if (kdtree_reverse) {
+                    tree_reverse->nearestKSearch(cloud_target->points[k_indices[0]], 1, k_indices_reverse, k_sqr_distances_reverse);
+                    if (k_indices_reverse[0] == i) {
+                        // LOG(INFO) << "k_indices_reverse[0] :" << k_indices_reverse[0] << std::endl
+                        // 		  << "i :" << i << "互为最近点";
+                        v_source.push_back(Eigen::Vector3f(input_transformed->points[i].x, input_transformed->points[i].y, input_transformed->points[i].z));
+                        v_target.push_back(Eigen::Vector3f(cloud_target->points[k_indices[0]].x, cloud_target->points[k_indices[0]].y, cloud_target->points[k_indices[0]].z));
+                        cloud_source_new->points.push_back(input_transformed->points[i]);
+                        cloud_target_new->points.push_back(cloud_target->points[k_indices[0]]);
 
-                sum_sqr_dis += k_sqr_distances[0];
-                count++;
-                // }
+                        sum_sqr_dis += k_sqr_distances[0];
+                        count++;
+                    }
+                }
+                // 单方向kdtree搜索
+                else {
+                    v_source.push_back(Eigen::Vector3f(input_transformed->points[i].x, input_transformed->points[i].y, input_transformed->points[i].z));
+                    v_target.push_back(Eigen::Vector3f(cloud_target->points[k_indices[0]].x, cloud_target->points[k_indices[0]].y, cloud_target->points[k_indices[0]].z));
+                    cloud_source_new->points.push_back(input_transformed->points[i]);
+                    cloud_target_new->points.push_back(cloud_target->points[k_indices[0]]);
+                    sum_sqr_dis += k_sqr_distances[0];
+                    count++;
+                }
             }
         }
 
@@ -299,15 +306,7 @@ int main()
         LOG(INFO) << "cloud_source_new->points.size():" << cloud_source_new->points.size() << std::endl;
         LOG(INFO) << "cloud_target_new->points.size():" << cloud_target_new->points.size() << std::endl;
 
-        // 计算点云点集质心 p^ q^
-        Eigen::Vector3f centroid_source;
-        Eigen::Vector3f centroid_target;
-        centroid_source.setZero();
-        centroid_target.setZero();
-        Eigen::Matrix3f W;
-        W.setZero();
-        GetCentroid(v_source, v_target, centroid_source, centroid_target, W);
-        bool use_umeyama_ = true;
+        bool use_umeyama_ = false;
         // 计算旋转矩阵 R
         // 测试使用umeyama
         if (use_umeyama_) {
@@ -329,15 +328,25 @@ int main()
                       << cur_transformation_matrix << std::endl;
             TransFromCloud(*input_transformed, *input_transformed, cur_transformation_matrix);
             transformation_matrix = cur_transformation_matrix * transformation_matrix;
-            LOG(INFO) << "final transformation_matrix:\n"
+            LOG(INFO) << "umeyama final transformation_matrix:\n"
                       << transformation_matrix << std::endl;
             ShowIcpViewer(cloud_source_in, cloud_target, input_transformed);
-            if(error_distance<1e-7){
+            if (error_distance < 1e-7) {
                 break;
             }
 
         } else {
+            // 计算点云点集质心 p^ q^
+            Eigen::Vector3f centroid_source;
+            Eigen::Vector3f centroid_target;
+            centroid_source.setZero();
+            centroid_target.setZero();
+            Eigen::Matrix3f W;
+            W.setZero();
+            GetCentroid(v_source, v_target, centroid_source, centroid_target, W);
+            Eigen::JacobiSVD<Eigen::Matrix3f> svd(W, Eigen::ComputeFullU | Eigen::ComputeFullV);
 
+            //矩阵存储方式
             Eigen::Matrix<float, 4, 1> centroid_source_mat;
             Eigen::Matrix<float, 4, 1> centroid_target_mat;
             Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> demean_matrix_out_source;
@@ -345,14 +354,10 @@ int main()
             GetCentroid(v_source, centroid_source_mat, demean_matrix_out_source);
             GetCentroid(v_target, centroid_target_mat, demean_matrix_out_target);
 
-            // w=P’q'^Tn H使用R=u v^t
+            // w=P’q'^Tn R=V U^T
+            // H=q'p^T使用R=u v^t 结果一致
             Eigen::Matrix<float, 3, 3> H = (demean_matrix_out_target * demean_matrix_out_source.transpose()).topLeftCorner(3, 3);
-
-            LOG(INFO) << "W:\n"
-                      << W << std::endl;
-            LOG(INFO) << "H:\n"
-                      << H << std::endl;
-            Eigen::JacobiSVD<Eigen::Matrix3f> svd(W, Eigen::ComputeFullU | Eigen::ComputeFullV);
+            LOG(INFO) << "H:\n"<< H << std::endl;
             // 使用矩阵
             Eigen::JacobiSVD<Eigen::Matrix3f> svdH(H, Eigen::ComputeFullU | Eigen::ComputeFullV);
             // svd 求解  R=VU^T   t=q^-Rp^
@@ -385,6 +390,9 @@ int main()
             LOG(INFO) << "final transformation_matrix:\n"
                       << transformation_matrix << std::endl;
             ShowIcpViewer(cloud_source_in, cloud_target, input_transformed);
+            if (error_distance < 1e-7) {
+                break;
+            }
         }
     }
     // pcl::transformPointCloud(*cloud_source_in, *input_transformed, transformation_matrix);
