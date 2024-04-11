@@ -165,7 +165,7 @@ void GolgInit(std::string &log_info_path)
 		system(str_command.c_str()); // 存在就删除目录
 	}
 
-	log_info = log_info_path + "ICP_";
+	log_info = log_info_path + "ICP_Test";
 	FLAGS_alsologtostderr = true;
 	FLAGS_colorlogtostderr = true;
 	google::SetLogDestination(google::GLOG_INFO, log_info.c_str());
@@ -186,7 +186,7 @@ int main(int argc, char **argv)
     Eigen::Matrix3d R = Eigen::Matrix3d::Identity();
     Eigen::Vector3d t(0.0, 0.0, 0.0);
     pcl::io::loadPCDFile("../data/pcd/icp_process/162755.pcd", *cloud_source);
-    pcl::io::loadPCDFile("../data/pcd/icp_process/162755_trans.pcd", *cloud_target);
+    pcl::io::loadPCDFile("../data/pcd/icp_process/162707.pcd", *cloud_target);
     // icp_test(cloud_source, cloud_target, 50, 1.0e-10, 1.0e-10, R, t);
     // std::cout << "R: \n"
     //           << R << std::endl;
@@ -323,12 +323,6 @@ int main(int argc, char **argv)
     icp_secondary.align(*cloud_icp_2, icp.getFinalTransformation());
     std::cout << "icp_secondary.getFinalTransformation())------------ :\n"
               << icp_secondary.getFinalTransformation() << std::endl;
-    // pcl::io::savePCDFile("/home/ahpc/myspace/pcl_tool/pcl_tool/GB_charger_zeek.pcd", *cloud_icp_2);
-    /*icp_secondary.getFinalTransformation())------------ :
-    0.99856   0.0142509   0.0517843 -0.00442908
- -0.0103793    0.997184  -0.0742796  -0.0172684
-  -0.052697    0.073635    0.995892  0.00394122
-          0           0           0           1*/
     bool show_icp = true;
     if (show_icp)
     {

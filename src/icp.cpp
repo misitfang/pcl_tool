@@ -289,10 +289,9 @@ int main()
         // cloud_target_new->width = cloud_target_new->points.size();
         // pcl::io::savePCDFile("./cloud_source_new.pcd", *cloud_source_new);
         // pcl::io::savePCDFile("./cloud_target_new.pcd", *cloud_target_new);
-        LOG(INFO) << "count:" << count << std::endl;
-        // 对应点之间平方和距离平均值
+
+        // 对应点之间平方和距离平均值 判断是否迭代
         error_distance = (sum_sqr_dis) / count;
-        // sqr_distances_th = error_distance * 2;
         LOG(INFO) << "error_distance:" << error_distance << std::endl;
         LOG(INFO) << "max_dist_sqr:" << max_dist_sqr << std::endl;
         LOG(INFO) << "v_source.size():" << v_source.size() << std::endl;
@@ -333,6 +332,9 @@ int main()
             LOG(INFO) << "final transformation_matrix:\n"
                       << transformation_matrix << std::endl;
             ShowIcpViewer(cloud_source_in, cloud_target, input_transformed);
+            if(error_distance<1e-7){
+                break;
+            }
 
         } else {
 
