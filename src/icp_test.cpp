@@ -11,6 +11,8 @@
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/common/common.h>
 #include <pcl/filters/voxel_grid.h>
+#include <glog/logging.h>
+
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloudT;
 
@@ -185,8 +187,8 @@ int main(int argc, char **argv)
     PointCloudT::Ptr cloud_target(new PointCloudT());
     Eigen::Matrix3d R = Eigen::Matrix3d::Identity();
     Eigen::Vector3d t(0.0, 0.0, 0.0);
-    pcl::io::loadPCDFile("../data/pcd/icp_process/162755.pcd", *cloud_source);
-    pcl::io::loadPCDFile("../data/pcd/icp_process/162807.pcd", *cloud_target);
+    pcl::io::loadPCDFile("../data/pcd/model/selected6_trans.pcd", *cloud_source);
+    pcl::io::loadPCDFile("../data/pcd/model/eletre.pcd", *cloud_target);
     // icp_test(cloud_source, cloud_target, 50, 1.0e-10, 1.0e-10, R, t);
     // std::cout << "R: \n"
     //           << R << std::endl;
@@ -198,19 +200,36 @@ int main(int argc, char **argv)
     std::cout << "目标点云有 " << cloud_source->size() << " 个点" << endl;
     // for (size_t i = 0; i < cloud_source->size(); i++)
     // {
-    //     cloud_source->points[i].x /= 1000;
-    //     cloud_source->points[i].y /= 1000;
-    //     cloud_source->points[i].z /= 1000;
-    // }
+    //       // 去除充电口上方距离点（0.0283，0.018）平面距离大于0.037m的点
+    //         if (cloud_source->points[i].x > 0.025 &&
+    //             sqrt(pow(cloud_source->points[i].x - 0.0283, 2) + pow(cloud_source->points[i].y - 0.018, 2)) > 0.04)
+    //         {
+    //         }
+    //         // 去除充电口下方距离点（0.0，0.017）平面距离大于0.039m的点
+    //         else if (cloud_source->points[i].x <= 0.005 &&
+    //                  sqrt(pow(cloud_source->points[i].x - 0.0, 2) + pow(cloud_source->points[i].y - 0.017, 2)) > 0.038)
+    //         {
+    //         }
+    //         else if (cloud_source->points[i].z > 0.0051)
+    //         {
+    //             /* code */
+    //         }
+
+    //         else
+    //         {
+    //             cloud_source_in_x->push_back(cloud_source->points[i]);
+    //         }
+    //     }
+
     Eigen::Matrix4f T;
 
     // pcl::StatisticalOutlierRemoval<PointT> sor;
     // sor.setInputCloud(cloud_source);
-    // sor.setMeanK(40);
+    // sor.setMeanK(20);
     // sor.setStddevMulThresh(1);
     // sor.setNegative(false);
     // sor.filter(*cloud_source);
-    // std::cout << "目标点云滤波后还剩 " << cloud_source->size() << " 个点" << endl;
+    std::cout << "目标点云滤波后还剩 " << cloud_source->size() << " 个点" << endl;
     // pcl::io::savePCDFile("/home/ahpc/myspace/pcl_tool/pcl_tool/GB_charger_zeek_filter.pcd", *cloud_source);
 
     //  for (size_t i = 0; i < cloud_source->size(); i++)
@@ -269,8 +288,10 @@ int main(int argc, char **argv)
     // sor.setStddevMulThresh(1);
     // sor.setNegative(false);
     // sor.filter(*cloud_source);
-    // std::cout << cloud_target->size() << std::endl;
-    // std::cout << cloud_source->size() << std::endl;
+    // std::cout << "目标点云滤波后还剩 " << cloud_source->size() << " 个点" << endl;
+
+    std::cout << cloud_target->size() << std::endl;
+    std::cout << cloud_source->size() << std::endl;
     // Eigen::Matrix3d R_eye_in_hand;
     // Eigen::Vector3d tcp(-28.26 / 1000, -18.89 / 1000, 271.00 / 1000);
     // Eigen::Vector3d t_eye_in_hand(64.723506486 / 1000, -0.58450654 / 1000, 32.056097741 / 1000);
@@ -302,7 +323,7 @@ int main(int argc, char **argv)
     LOG(INFO)<<"setInputTarget"<<std::endl;
 
     icp.setTransformationEpsilon(1e-10);    // 为终止条件设置最小转换差异
-    icp.setMaxCorrespondenceDistance(0.2); // 设置对应点对之间的最大距离（大于该距离的点不考虑 m。
+    icp.setMaxCorrespondenceDistance(0.04); // 设置对应点对之间的最大距离（大于该距离的点不考虑 m。
     icp.setEuclideanFitnessEpsilon(0.001);  // 设置收敛条件是均方误差和小于阈值， 停止迭代；
     icp.setMaximumIterations(35);           // 最大迭代次数
 
@@ -310,7 +331,7 @@ int main(int argc, char **argv)
     PointCloudT::Ptr cloud_icp_2(new PointCloudT());
 
     LOG(INFO) << "start align with trans_init" << std::endl;
-    icp.align(*cloud_icp,T);
+    icp.align(*cloud_icp);
     LOG(INFO) << "icp.getFinalTransformation())------------ :\n"
               << icp.getFinalTransformation() << std::endl;
 
@@ -324,6 +345,7 @@ int main(int argc, char **argv)
     std::cout << "icp_secondary.getFinalTransformation())------------ :\n"
               << icp_secondary.getFinalTransformation() << std::endl;
     bool show_icp = true;
+    pcl::io::savePCDFile("../data/pcd/model/selected6_trans_.pcd",*cloud_icp_2);
     if (show_icp)
     {
         boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer1(new pcl::visualization::PCLVisualizer("/icp Viewer,red==cloud_source ,green==template_cloud,blue==icp_cloud"));
