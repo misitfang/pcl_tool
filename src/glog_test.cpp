@@ -67,7 +67,7 @@ int main()
   }
   LOG(INFO) << ">>>>>>>>>  log start <<<<<<<<<<<  ";
   FLAGS_alsologtostderr = true; // true 同时打印到终端
-
+  FLAGS_max_log_size =10;
   Eigen::Vector4d cir_1(0.01, 0, 0, 1);
   Eigen::Vector4d tcp(-0.0250411, -0.0199086, 0.327973, 0);
   Eigen::Vector4d tcp_frame, flange_frame, cam_frame;
@@ -84,9 +84,19 @@ int main()
       0.0056271, -0.0296839, 0.999544, 0.141547,
       0, 0, 0, 1;
   tcp_frame = T_tcp_2_point * cir_1;
-  LOG(INFO) << "tcp_frame: " << tcp_frame[0] << " , " << tcp_frame[1] << " , " << tcp_frame[2] << " , " << tcp_frame[3] << std::endl;
+  for(int i=0;i<1000000;i++){
+
+  LOG(INFO) << "tcp_frame: " << tcp_frame[0] << " , " << tcp_frame[1] << " , " 
+  << tcp_frame[2] << " , " << tcp_frame[3] << std::endl;
   flange_frame = tcp_frame + tcp;
-  LOG(INFO) << "flange_frame: " << flange_frame[0] << " , " << flange_frame[1] << " , " << flange_frame[2] << " , " << flange_frame[3] << std::endl;
+  LOG(INFO) << "flange_frame: " << flange_frame[0] << " , " << flange_frame[1] 
+      << " , " << flange_frame[2] << " , " << flange_frame[3] << std::endl;
+    if (!google::IsGoogleLoggingInitialized())
+  {
+    
+    LOG(INFO) << ">>>>>>>>> init google log<<<<<<<<<<<  ";
+  }
+  }
 
   T_cam_2_tcp << -0.027445, -0.999507, -0.01527, 0.087639,
       0.99898, -0.026876, -0.036295, -0.006377,
