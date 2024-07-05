@@ -1,0 +1,37 @@
+\documentclass{article}
+\usepackage{algorithmic}
+\usepackage{algorithm}
+\usepackage{amsmath}
+
+% \usepackage[ruled,linesnumbered]{algorithm2e}
+\begin{document}
+\begin{algorithm}[!htb]
+	\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+	\renewcommand{\algorithmicensure}{\textbf{Output:}}
+	\caption{AHPC-lite precise\_location}
+	\label{algorithm: masp}
+	\begin{algorithmic}[1]
+		\REQUIRE
+			$\mathbf{M_{i}},\mathbf{P_{i}}$;
+        // RGBImage,Point3d
+
+		\ENSURE
+			$P_{pose}$($t_x,t_y,t_z,\theta_{yaw},\theta_{pitch},\theta_{roll}$);
+        \STATE Initialize intrinsic, calibration param;
+        
+        \STATE $\mathbf{P_{circle}},\mathbf{P_{charger}}\leftarrow $detect$(\mathbf{M_{i}})$;
+        \IF{$\mathbf{P_{circle}}.size()>threshold$}
+        \STATE $a,b,c,d\leftarrow $Ransac$(\mathbf{P_{circle}})$
+        \ELSE 
+        \STATE $a,b,c,d\leftarrow$ Ransac$(\mathbf{P_{charger}})$
+        \ENDIF
+        \STATE $t\leftarrow uv_{circle},a,b,c,d$;
+        \STATE $R\leftarrow a,b,c$;
+        \STATE $T_{i}\leftarrow R,t$
+        //init transformation.
+        \STATE $T\leftarrow$ icp.algin$(T_{i})$\;
+        \STATE $P_{pose}\leftarrow T$\;
+        \RETURN $t_x,t_y,t_z,\theta_{yaw},\theta_{pitch},\theta_{roll}$;
+	\end{algorithmic}
+\end{algorithm}
+\end{document}

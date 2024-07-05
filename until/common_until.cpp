@@ -1,7 +1,7 @@
 
 #include <iostream>
-
-
+#include <Eigen/Dense>
+#include <Eigen/Core>
 
 /**
  * @brief 
@@ -97,3 +97,81 @@ void GetTransformationMatrix(Eigen::Matrix3d &rotation_matrix, Eigen::Vector3d &
     T_M3.pretranslate(translation_matrix);
     transformation_atrix = T_M3.matrix();
 }
+
+
+
+/// get final result  
+//R t --->T
+void ResultProcess::GetTransformationMatrix(const Eigen::Matrix3d &rotation_matrix, const Eigen::Vector3d &translation_matrix,
+                             Eigen::Matrix4d &transformation_matrix)
+{
+
+  Eigen::Isometry3d T_M3 = Eigen::Isometry3d::Identity();
+  T_M3.rotate(rotation_matrix);
+  T_M3.pretranslate(translation_matrix);
+  transformation_matrix = T_M3.matrix();
+}
+void ResultProcess::TransToTcpCoordinate(const Eigen::Matrix4d &transformation_matrix, Eigen::Matrix<double, 6, 1> &result)
+{
+  Eigen::Affine3d Trans(transformation_matrix);
+  Eigen::Matrix3d R = Trans.rotation();
+  Eigen::AngleAxisd result_r;
+  result_r.fromRotationMatrix(R);
+  Eigen::Vector3d result_eulerangle = result_r.matrix().eulerAngles(0, 1, 2);
+  Eigen::Vector3d result_t = Trans.translation();
+  result(0, 0) = result_t[0];
+  result(1, 0) = result_t[1];
+  result(2, 0) = result_t[2];
+  result(3, 0) = result_eulerangle[0]; // yaw
+  result(4, 0) = result_eulerangle[1]; // pitch
+  result(5, 0) = result_eulerangle[2]; // roll
+}
+void ResultProcess::GetFinalResult(const Eigen::Matrix3d &pnp_solve_R, const Eigen::Vector3d &pnp_solve_t,
+                    const Eigen::Matrix3d &R_eye_in_hand, const Eigen::Vector3d &t_eye_in_hand,
+                    const Eigen::Vector3d &tcp ,Eigen::Matrix<double, 6, 1> &result)
+{ 
+  Eigen::Matrix4d T_point_2_uv, T_cam_2_tcp, T_tcp_2_point;
+  GetTransformationMatrix(pnp_solve_R, pnp_solve_t, T_point_2_uv);
+  Eigen::Vector3d t_eye_2_tcp = t_eye_in_hand - tcp;
+  GetTransformationMatrix(R_eye_in_hand, t_eye_2_tcp, T_cam_2_tcp);
+  T_tcp_2_point = T_cam_2_tcp * T_point_2_uv;
+  TransToTcpCoordinate(T_tcp_2_point, result);
+  std::cout << "pnp求解值 T_point_2_uv=\n" << T_point_2_uv << "\n";
+  std::cout << "result T_tcp_2_point=\n" << T_tcp_2_point << "\n";
+  std::cout << "result in tcpcoordinate:x y z rx ry rz\n" << result << std::endl;
+}
+
+
+    //三维点投影到2d图像
+    Eigen::AngleAxisd rollAngle(Eigen::AngleAxisd(precise_charge_pose->yaw,Eigen::Vector3d::UnitX()));
+    Eigen::AngleAxisd pitchAngle(Eigen::AngleAxisd(precise_charge_pose->pitch,Eigen::Vector3d::UnitY()));
+    Eigen::AngleAxisd yawAngle(Eigen::AngleAxisd(precise_charge_pose->roll+0.053156,Eigen::Vector3d::UnitZ()));
+ 
+    Eigen::Matrix3d rotation_matrix;
+    Eigen::Vector3d translation_matrix(precise_charge_pose->x,precise_charge_pose->y,precise_charge_pose->z);
+    rotation_matrix=yawAngle*pitchAngle*rollAngle;
+    Eigen::Isometry3d T_M3 = Eigen::Isometry3d::Identity();
+    T_M3.rotate(rotation_matrix);
+    T_M3.pretranslate(translation_matrix);
+    transformation_atrix = T_M3.matrix();
+    T=T_to_tcp.inverse()*transformation_atrix;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr center_trans_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    Eigen::Vector2d center_trans_uv;
+    for(size_t i=0;i<kps3d_circles_center.size();i++)
+    {
+        pcl::PointXYZ point;
+        point.x=kps3d_circles_center[i][0];
+        point.y=kps3d_circles_center[i][1];
+        point.z=kps3d_circles_center[i][2];
+        center_trans_cloud->push_back(point);
+    }
+  	pcl::transformPointCloud(*center_trans_cloud, *center_trans_cloud, T.cast<float>());
+
+    for(size_t i=0 ;i<center_trans_cloud->size();i++)
+    {
+        center_trans_uv[0]=1719.57*center_trans_cloud->points[i].x/center_trans_cloud->points[i].z +953.387;
+        center_trans_uv[1]=1720.51*center_trans_cloud->points[i].y/center_trans_cloud->points[i].z +546;
+        //保存至原图中
+        cv::circle(img_mat, cv::Point2d(center_trans_uv[0],center_trans_uv[1]), 1, cv::Scalar(0, 0, 255), -1);
+    }
+	cv::imwrite("./test.jpg", img_mat);
