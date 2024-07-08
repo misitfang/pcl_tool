@@ -1,0 +1,5 @@
+Log file created at: 2024/06/25 19:34:19
+Running on machine: firefly
+Running duration (h:mm:ss): 0:00:00
+Log line format: [IWEF]yyyymmdd hh:mm:ss.uuuuuu threadid file:line] msg
+I20240625 19:34:19.585719 2306522 main_charger.cpp:1215] out name ：../data/images/out_path/2024625_19_34_19.jpg
