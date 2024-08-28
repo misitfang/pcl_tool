@@ -5,7 +5,7 @@ project(normal_est)
 set(CMAKE_CXX_FLAGS_DEBUG "{CMAKE_CXX_FLAGS} -o0 -ggbd")    #添加语句
 add_compile_options(-g)                                     #添加语句
 SET(CMAKE_BUILD_TYPE “DEBUG”)
-find_package (glog REQUIRED)
+# find_package (glog REQUIRED)
 find_package(PCL 1.7)
 include_directories("/usr/include/eigen3")
 include_directories(${PCL_INCLUDE_DIRS})
@@ -58,14 +58,14 @@ link_directories(/home/ahpc/workspace/yolov5s_ncnn_0117/yolov5s_ncnn/3rd/lib/)
 # add_executable(ransac_registration src/ransac_registration.cpp)
 # target_link_libraries(ransac_registration ${PCL_LIBRARIES})
 
-add_executable(icp_test src/icp_test.cpp)
-target_link_libraries(icp_test ${PCL_LIBRARIES} glog)
+# add_executable(icp_test src/icp_test.cpp)
+# target_link_libraries(icp_test ${PCL_LIBRARIES} glog)
 
 # add_executable(icp_p_plane src/icp_p_plane.cpp)
 # target_link_libraries(icp_p_plane ${PCL_LIBRARIES})
 
-# add_executable(corss src/corss.cpp)
-# target_link_libraries(corss ${PCL_LIBRARIES})
+add_executable(corss src/corss.cpp)
+target_link_libraries(corss ${PCL_LIBRARIES})
 
 # add_executable(alignment_prerejective src/alignment_prerejective.cpp)
 # target_link_libraries(alignment_prerejective ${PCL_LIBRARIES})
@@ -84,10 +84,10 @@ target_link_libraries(icp_test ${PCL_LIBRARIES} glog)
 # target_link_libraries(icp_process ${PCL_LIBRARIES})
 
 
-find_package (glog REQUIRED)
-add_executable(glog_test src/glog_test.cpp)
-target_link_libraries(glog_test ${PCL_LIBRARIES} glog)
+# find_package (glog REQUIRED)
+# add_executable(glog_test src/glog_test.cpp)
+# target_link_libraries(glog_test ${PCL_LIBRARIES} glog)
 
 
-add_executable(icp src/icp.cpp)
-target_link_libraries(icp ${PCL_LIBRARIES} glog)
+# add_executable(icp src/icp.cpp)
+# target_link_libraries(icp ${PCL_LIBRARIES} glog)

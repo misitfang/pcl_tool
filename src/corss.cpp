@@ -186,6 +186,7 @@
 #include <limits>
 #include <vector>
 #include <fstream>
+#include <stdio.h>
 using namespace std;
 
 void pointFunTest(int *a, int *b)
@@ -213,9 +214,35 @@ std::ostream &operator<<(std::ostream &output, std::vector<int> arr)
     }
     return output;
 }
-int main()
-{
+bool isPrime3(int n){
+ bool yes=false;
+ if(n==2||n==3||n==5){ //当n<6时列举即可
+  yes=true;
+ }
+ else if(n%6==1||n%6==5){ //通过判断余数的方式来判断n的表达式
+  yes=true;
+  for(int i=2;i<=sqrt(n);i++){
+   if(n%i==0){
+    yes=false;
+    break;
+   }
+  }
+ }
+ return yes;
+}
 
+int main()
+{   
+    for(int i=1;i<100;i++){
+    auto aaaa=(-7/12)*(i*i*i*i)+(37/6)*(i*i*i)-(137/12)*(i*i)+(119/6)*i-1;
+        if(isPrime3(i+2)){
+            auto aaa=i*(i+2)-2;
+
+    std::cout<< "aaa: "<<aaa<<std::endl;
+    std::cout<< "aaaa: "<<aaaa<<std::endl;
+        }
+    }
+    
     std::cout << "type: \t\t"
               << "*\'***********size**************" << std::endl;
     std::cout << "bool: \t\t"
