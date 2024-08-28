@@ -231,6 +231,12 @@ bool isPrime3(int n){
  return yes;
 }
 
+void param_test(int a,int b){
+    std::cout<< "无testa参数输入"<<std::endl;
+}
+void param_test(int a,int b,bool testa){
+    std::cout<< "testa=false"<<std::endl;
+}
 int main()
 {   
     for(int i=1;i<100;i++){
@@ -463,6 +469,21 @@ int main()
     fun();
 
     Eigen::Vector3f skew_a(2.1,2,2.2);
-    
+    bool trd=true;
+    param_test(1,2,trd);
+
+    Eigen::Matrix<float,3,4> mat3;
+    mat3<<1,2,3,4,5,6,7,8,9,10,11,12;
+    //matrix.data(), 将矩阵按列顺序存储到数组内，
+    const auto x1_x=mat3.data()[1];
+    std::cout<<"type: "<<typeid(x1_x).name()<<std::endl;
+    std::cout<<"2: "<<mat3.data()[0]<<std::endl;
+    std::cout<<"x1_x: "<<x1_x<<std::endl;
+    std::cout<<"2: "<<mat3.data()[2]<<std::endl;
+    std::cout<<"3: "<<mat3.data()[3]<<std::endl;
+    std::cout<<"4: "<<mat3.data()[4]<<std::endl;
+    std::cout<<"5: "<<mat3.data()[5]<<std::endl;
+    std::cout<<"2: "<<mat3.data()[2]<<std::endl;
+    std::cout<<"data: "<<mat3.data()+3<<std::endl;
     return 0;
 }

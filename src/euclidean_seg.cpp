@@ -18,7 +18,7 @@ int main()
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>), cloud_f(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_final(new pcl::PointCloud<pcl::PointXYZ>);
 
-    reader.read("/home/ahpc/myspace/pcl_tool/pcl_tool/data/loam/finalCloud.pcd", *cloud);
+    reader.read("../data/pcd/GB_charger/chongdiankou_eletre_sub_center_open3d.pcd", *cloud);
     std::cout << "PointCloud before filtering has: " << cloud->size() << " data points." << std::endl; //*
 
     // Create the filtering object: downsample the dataset using a leaf size of 1cm
@@ -97,11 +97,11 @@ int main()
         cloud_cluster->width = cloud_cluster->size();
         cloud_cluster->height = 1;
         cloud_cluster->is_dense = true;
-*cloud_final+=*cloud_cluster;
+        *cloud_final+=*cloud_cluster;
         std::cout << "PointCloud representing the Cluster: " << cloud_cluster->size() << " data points." << std::endl;
         std::stringstream ss;
         ss << std::setw(4) << std::setfill('0') << j;
-        writer.write<pcl::PointXYZ>("/home/ahpc/myspace/pcl_tool/pcl_tool/data/result/cloud_cluster_" + ss.str() + ".pcd", *cloud_cluster, false); //*
+        writer.write<pcl::PointXYZ>("../data/result/cloud_cluster_" + ss.str() + ".pcd", *cloud_cluster, false); //*
         j++;
     }
 

@@ -14,36 +14,36 @@ int main(int argc, char **argv)
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in(new pcl::PointCloud<pcl::PointXYZ>);
     PointCloudT::Ptr cloud_source_in_x(new PointCloudT());
 
-    pcl::io::loadPCDFile("/home/ahpc/models/alpha/charge_port_alpha_selected_sub.pcd", *cloud_source_in_x);
+    pcl::io::loadPCDFile("../data/pcd/model/alpha_0626_x0.001.pcd", *cloud_in);
     Eigen::Matrix4f T;
     Eigen::Matrix4f T_inv;
 
-    // T << 0.930824, 0.0125933, -0.365147, 0.0883422,
-    //     0.0184825, 0.996463, 0.0814996, -0.0397862,
-    //     0.364898, -0.0826153, 0.927336, 0.247729,
-    //     0, 0, 0, 1;
-    T << cos(-1.57), -sin(-1.57), 0, 0,
-        sin(-1.57), cos(-1.57), 0, 0,
+    T << 1, 0, 0, 0.0003,
+        0, 1, 0, 0.001,
         0, 0, 1, 0,
         0, 0, 0, 1;
+    // T << cos(0.04), -sin(0.04), 0, 0,
+    //     sin(0.04), cos(0.04), 0, 0,
+    //     0, 0, 1, 0,
+    //     0, 0, 0, 1;
     PointT point;
     
-     for (size_t i = 0; i < cloud_source_in_x->size(); i++)
-    {
-        point.x = cloud_source_in_x->points[i].x / 1000;
-        point.y = cloud_source_in_x->points[i].y / 1000;
-        point.z = cloud_source_in_x->points[i].z / 1000;
-        cloud_in->push_back(point);
-    }
+    //  for (size_t i = 0; i < cloud_source_in_x->size(); i++)
+    // {
+    //     point.x = cloud_source_in_x->points[i].x / 1000;
+    //     point.y = cloud_source_in_x->points[i].y / 1000;
+    //     point.z = cloud_source_in_x->points[i].z / 1000;
+    //     cloud_in->push_back(point);
+    // }
 
     T_inv = T.inverse();
-    pcl::transformPointCloud(*cloud_in, *cloud_in, T_inv);
+    pcl::transformPointCloud(*cloud_in, *cloud_in, T);
     std::cout << " cloud size-------------" << cloud_in->size() << std::endl;
 
-    pcl::VoxelGrid<pcl::PointXYZ> voxel_grid;
-	voxel_grid.setInputCloud(cloud_in);
-	voxel_grid.setLeafSize(0.0008, 0.0008, 0.0008);
-	voxel_grid.filter(*cloud_in);
+    // pcl::VoxelGrid<pcl::PointXYZ> voxel_grid;
+	// voxel_grid.setInputCloud(cloud_in);
+	// voxel_grid.setLeafSize(0.00035, 0.00035, 0.00035);
+	// voxel_grid.filter(*cloud_in);
 
     // pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
     // sor.setInputCloud(cloud_in);
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
     // sor.setNegative(false);
     // sor.filter(*cloud_in);
     std::cout << "after filter cloud size-------------" << cloud_in->size() << std::endl;
-    pcl::io::savePCDFile("/home/ahpc/models/alpha/alpha_models.pcd", *cloud_in);
+    pcl::io::savePCDFile("../data/pcd/model/alpha_0626_x0.001_0702.pcd", *cloud_in);
 
     // boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer_total_points(new pcl::visualization::PCLVisualizer("Tatal_point_Viewer"));
 
